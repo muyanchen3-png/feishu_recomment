@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>智能信息分析系统</title>
+  <!-- 引入外部资源 -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <!-- Tailwind 配置 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#165DFF',
+            success: '#00B42A',
+            danger: '#F53F3F',
+            warning: '#FF7D00',
+            dark: '#1D2129',
+            'dark-2': '#4E5969',
+            'light-1': '#C9CDD4',
+            'light-2': '#F2F3F5',
+            'light-3': '#F7F8FA'
+          },
+          fontFamily: {
+            inter: ['Inter', 'system-ui', 'sans-serif']
+          },
+          boxShadow: {
+            'card': '0 2px 12px 0 rgba(0, 0, 0, 0.08)',
+            'card-hover': '0 4px 20px 0 rgba(0, 0, 0, 0.12)'
+          }
+        }
+      }
+    }
+  </script>
+  
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .card-transition {
+        transition: all 0.3s ease;
+      }
+      .btn-gradient {
+        background: linear-gradient(90deg, #165DFF 0%, #0FC6C2 100%);
+      }
+      .text-shadow {
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .input-focus {
+        @apply focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none;
+      }
+      .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+      }
+      .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+      .result-card-hover {
+        @apply hover:shadow-card-hover hover:-translate-y-1 transition-all duration-300;
+      }
+    }
+  </style>
+</head>
+<body class="font-inter bg-light-3 text-dark min-h-screen flex flex-col">
+  <!-- 顶部导航栏 -->
+  <header class="bg-white shadow-sm sticky top-0 z-50 transition-all duration-300" id="navbar">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <!-- Logo 和标题 -->
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center text-white">
+            <i class="fa fa-search-plus text-xl"></i>
+          </div>
+          <div>
+            <h1 class="text-lg sm:text-xl font-bold text-dark">智能信息分析系统</h1>
+            <p class="text-xs text-light-1 hidden sm:block">多维度监控 · 智能分析 · 灵活推送</p>
+          </div>
+        </div>
+        
+        <!-- 用户信息 -->
+        <div class="flex items-center space-x-4">
+          <button class="text-dark-2 hover:text-primary transition-colors p-2 rounded-full hover:bg-light-2">
+            <i class="fa fa-bell-o text-lg"></i>
+          </button>
+          <div class="flex items-center space-x-2">
+            <img src="https://picsum.photos/id/1005/40/40" alt="用户头像" class="w-8 h-8 rounded-full object-cover border-2 border-light-2">
+            <span class="text-sm font-medium hidden sm:inline-block">分析师账户</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主内容区 -->
+  <main class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <!-- 左侧配置区域 -->
+      <div class="lg:col-span-8 space-y-6">
+        <!-- 关键词设置卡片 -->
+        <div class="bg-white rounded-xl shadow-card p-5 card-transition hover:shadow-card-hover">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-bold flex items-center">
+              <i class="fa fa-tags text-primary mr-2"></i>
+              关键词与关注领域配置
+            </h2>
+            <span class="text-xs text-light-1">设置您关注的领域和关键词</span>
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- 关注领域选择 -->
+            <div>
+              <label class="block text-sm font-medium text-dark-2 mb-1">关注领域</label>
+              <div class="relative">
+                <select class="w-full rounded-lg border border-light-1 bg-white py-2 px-3 input-focus appearance-none">
+                  <option value="all">全部领域</option>
+                  <option value="stock">股市金融</option>
+                  <option value="tech">科技创新</option>
+                  <option value="industry">产业动态</option>
+                  <option value="policy">政策法规</option>
+                  <option value="market">市场趋势</option>
+                  <option value="company">企业动态</option>
+                </select>
+                <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                  <i class="fa fa-chevron-down text-light-1"></i>
+                </div>
+              </div>
+            </div>
+            
+            <!-- 信息类型选择 -->
+            <div>
+              <label class="block text-sm font-medium text-dark-2 mb-1">信息类型</label>
+              <div class="relative">
+                <select class="w-full rounded-lg border border-light-1 bg-white py-2 px-3 input-focus appearance-none">
+                  <option value="all">全部类型</option>
+                  <option value="news">新闻资讯</option>
+                  <option value="report">研究报告</option>
+                  <option value="data">数据统计</option>
+                  <option value="analysis">专业分析</option>
+                  <option value="forecast">趋势预测</option>
+                </select>
+                <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                  <i class="fa fa-chevron-down text-light-1"></i>
+                </div>
+              </div>
+            </div>
+            
+            <!-- 关键词输入 -->
+            <div class="md:col-span-2">
+              <label class="block text-sm font-medium text-dark-2 mb-1">关键词设置
+                <span class="text-xs text-light-1 ml-1">多个关键词用逗号分隔</span>
+              </label>
+              <div class="relative">
+                <input 
+                  type="text" 
+                  placeholder="例如：人工智能,新能源,半导体,生物医药,碳中和..." 
+                  class="w-full rounded-lg border border-light-1 bg-white py-2 px-3 input-focus pr-10"
+                >
+                <button class="absolute right-3 top-1/2 -translate-y-1/2 text-primary hover:text-primary/80 transition-colors">
+                  <i class="fa fa-plus-circle"></i>
+                </button>
+              </div>
+              <div class="flex flex-wrap gap-2 mt-2">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
+                  人工智能
+                  <button class="ml-1 text-primary/70 hover:text-primary">
+                    <i class="fa fa-times-circle"></i>
+                  </button>
+                </span>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
+                  新能源
+                  <button class="ml-1 text-primary/70 hover:text-primary">
+                    <i class="fa fa-times-circle"></i>
+                  </button>
+                </span>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
+                  半导体
+                  <button class="ml-1 text-primary/70 hover:text-primary">
+                    <i class="fa fa-times-circle"></i>
+                  </button>
+                </span>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
+                  碳中和
+                  <button class="ml-1 text-primary/70 hover:text-primary">
+                    <i class="fa fa-times-circle"></i>
+                  </button>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 智能分析结果展示区域 -->
+        <div class="bg-white rounded-xl shadow-card p-5 card-transition hover:shadow-card-hover">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-3">
+            <h2 class="text-lg font-bold flex items-center">
+              <i class="fa fa-lightbulb-o text-primary mr-2"></i>
+              智能分析结果
+            </h2>
+            
+            <div class="flex flex-wrap gap-2">
+              <!-- 结果筛选标签 -->
+              <div class="inline-flex rounded-lg overflow-hidden border border-light-1">
+                <button class="px-3 py-1 text-sm bg-primary text-white">全部结果</button>
+                <button class="px-3 py-1 text-sm text-dark-2 hover:bg-light-2 transition-colors">关键发现</button>
+                <button class="px-3 py-1 text-sm text-dark-2 hover:bg-light-2 transition-colors">数据摘要</button>
+                <button class="px-3 py-1 text-sm text-dark-2 hover:bg-light-2 transition-colors">趋势分析</button>
+              </div>
+              
+              <!-- 操作按钮 -->
+              <button class="text-sm px-3 py-1 rounded-lg border border-light-1 hover:bg-light-2 transition-colors flex items-center">
+                <i class="fa fa-refresh mr-1"></i> 刷新
+              </button>
+              <button class="text-sm px-3 py-1 rounded-lg border border-light-1 hover:bg-light-2 transition-colors flex items-center">
+                <i class="fa fa-download mr-1"></i> 导出
+              </button>
+            </div>
+          </div>
+          
+          <!-- 分析概览卡片 -->
+          <div class="bg-primary/5 rounded-xl p-4 mb-6 border border-primary/10">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <h3 class="font-semibold text-dark mb-1">分析概览</h3>
+                <p class="text-sm text-dark-2 max-w-2xl">
+                  基于关键词 "人工智能、新能源、半导体、碳中和"，系统已分析相关信息 128 条，
+                  识别出 5 个关键趋势、3 个重要动态和 2 个潜在机会点，以下是详细分析结果。
+                </p>
+              </div>
+              <div class="flex gap-4">
+                <div class="text-center">
+                  <div class="text-xl font-bold text-primary">128</div>
+                  <div class="text-xs text-dark-2">分析信息数</div>
+                </div>
+                <div class="text-center">
+                  <div class="text-xl font-bold text-primary">5</div>
+                  <div class="text-xs text-dark-2">关键趋势</div>
+                </div>
+                <div class="text-center">
+                  <div class="text-xl font-bold text-primary">3</div>
+                  <div class="text-xs text-dark-2">重要动态</div>
+                </div>
+                <div class="text-center">
+                  <div class="text-xl font-bold text-primary">2</div>
+                  <div class="text-xs text-dark-2">机会点</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 分析结果列表 -->
+          <div class="space-y-4">
+            <!-- 关键发现卡片 -->
+            <div class="border border-light-2 rounded-xl p-4 result-card-hover">
+              <div class="flex items-start gap-3">
+                <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">
+                  <i class="fa fa-flag"></i>
+                </div>
+                <div class="flex-grow">
+                  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
+                    <h3 class="font-semibold">人工智能在制造业的应用加速落地</h3>
+                    <span class="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary self-start sm:self-auto">关键发现</span>
+                  </div>
+                  <p class="text-sm text-dark-2 mb-3">
+                    近期多家制造业龙头企业宣布加大人工智能技术投入，特别是在质量检测、生产优化和供应链管理方面。
+                    据统计，人工智能相关设备采购量环比增长 37%，预计未来 6 个月将有更多企业跟进。
+                  </p>
+                  <div class="flex items-center justify-between text-xs text-dark-2">
+                    <span><i class="fa fa-clock-o mr-1"></i> 2025-11-26 09:15</span>
+                    <span><i class="fa fa-tags mr-1"></i> 人工智能,制造业,技术应用</span>
+                    <button class="text-primary hover:underline">查看详情</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- 数据摘要卡片 -->
+            <div class="border border-light-2 rounded-xl p-4 result-card-hover">
+              <div class="flex items-start gap-3">
+                <div class="w-10 h-10 rounded-lg bg-success/10 flex items-center justify-center text-success flex-shrink-0">
+                  <i class="fa fa-bar-chart"></i>
+                </div>
+                <div class="flex-grow">
+                  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
+                    <h3 class="font-semibold">新能源行业投资数据摘要</h3>
+                    <span class="text-xs px-2 py-0.5 rounded-full bg-success/10 text-success self-start sm:self-auto">数据摘要</span>
+                  </div>
+                  <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
+                    <div class="bg-light-3 rounded-lg p-2">
+                      <div class="text-xs text-dark-2 mb-1">季度投资总额</div>
+                      <div class="text-lg font-bold text-dark">¥246 亿</div>
+                      <div class="text-xs text-success">↑18.2% 环比</div>
+                    </div>
+                    <div class="bg-light-3 rounded-lg p-2">
+                      <div class="text-xs text-dark-2 mb-1">新增项目数</div>
+                      <div class="text-lg font-bold text-dark">87 个</div>
+                      <div class="text-xs text-success">↑12.3% 环比</div>
+                    </div>
+                    <div class="bg-light-3 rounded-lg p-2">
+                      <div class="text-xs text-dark-2 mb-1">平均项目规模</div>
+                      <div class="text-lg font-bold text-dark">¥2.8 亿</div>
+                      <div class="text-xs text-success">↑5.1% 环比</div>
+                    </div>
+                  </div>
+                  <div class="flex items-center justify-between text-xs text-dark-2">
+                    <span><i class="fa fa-clock-o mr-1"></i> 2025-11-25 16:42</span>
+                    <span><i class="fa fa-tags mr-1"></i> 新能源,投资数据,市场规模</span>
+                    <button class="text-primary hover:underline">查看详情</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- 趋势分析卡片 -->
+            <div class="border border-light-2 rounded-xl p-4 result-card-hover">
+              <div class="flex items-start gap-3">
+                <div class="w-10 h-10 rounded-lg bg-warning/10 flex items-center justify-center text-warning flex-shrink-0">
+                  <i class="fa fa-line-chart"></i>
+                </div>
+                <div class="flex-grow">
+                  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
+                    <h3 class="font-semibold">半导体行业国产化替代加速</h3>
+                    <span class="text-xs px-2 py-0.5 rounded-full bg-warning/10 text-warning self-start sm:self-auto">趋势分析</span>
+                  </div>
+                  <p class="text-sm text-dark-2 mb-3">
+                    半导体行业国产化替代进程正在加速，国内企业市场份额从去年的 15.3% 提升至当前的 22.7%。
+                    政策支持、技术突破和市场需求是主要驱动因素，预计未来 3 年国产化率将突破 30%。
+                  </p>
+                  <div class="bg-light-3 rounded-lg p-3 mb-3">
+                    <h4 class="text-xs font-medium text-dark-2 mb-2">主要驱动因素：</h4>
+                    <ul class="text-xs text-dark-2 space-y-1 list-disc list-inside">
+                      <li>国家集成电路产业投资基金持续加码，累计投资超 3500 亿元</li>
+                      <li>国内企业技术突破，7nm 工艺实现量产，5nm 工艺进入研发阶段</li>
+                      <li>下游应用市场需求旺盛，新能源汽车、AI 设备等领域带动芯片需求增长</li>
+                    </ul>
+                  </div>
+                  <div class="flex items-center justify-between text-xs text-dark-2">
+                    <span><i class="fa fa-clock-o mr-1"></i> 2025-11-24 08:30</span>
+                    <span><i class="fa fa-tags mr-1"></i> 半导体,国产化,产业趋势</span>
+                    <button class="text-primary hover:underline">查看详情</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- 机会点卡片 -->
+            <div class="border border-light-2 rounded-xl p-4 result-card-hover">
+              <div class="flex items-start gap-3">
+                <div class="w-10 h-10 rounded-lg bg-success/10 flex items-center justify-center text-success flex-shrink-0">
+                  <i class="fa fa-rocket"></i>
+                </div>
+                <div class="flex-grow">
+                  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
+                    <h3 class="font-semibold">碳中和背景下的储能行业投资机会</h3>
+                    <span class="text-xs px-2 py-0.5 rounded-full bg-success/10 text-success self-start sm:self-auto">机会点</span>
+                  </div>
+                  <p class="text-sm text-dark-2 mb-3">
+                    在碳中和政策推动下，储能行业迎来快速发展期。2025 年全球储能市场规模预计达到 3200 亿元，
+                    年复合增长率超过 45%。电化学储能、氢能储能和抽水蓄能是三大主要技术路线，各有不同的投资机会。
+                  </p>
+                  <div class="flex flex-col sm:flex-row gap-3 mb-3">
+                    <div class="flex-1 bg-light-3 rounded-lg p-2">
+                      <h4 class="text-xs font-medium text-dark-2 mb-1">电化学储能</h4>
+                      <p class="text-xs text-dark-2">技术成熟度高，适用于分布式能源，市场规模最大</p>
+                    </div>
+                    <div class="flex-1 bg-light-3 rounded-lg p-2">
+                      <h4 class="text-xs font-medium text-dark-2 mb-1">氢能储能</h4>
+                      <p class="text-xs text-dark-2">长时储能优势明显，技术发展迅速，潜力巨大</p>
+                    </div>
+                    <div class="flex-1 bg-light-3 rounded-lg p-2">
+                      <h4 class="text-xs font-medium text-dark-2 mb-1">抽水蓄能</h4>
+                      <p class="text-xs text-dark-2">大容量储能首选，政策支持力度大，投资回报稳定</p>
+                    </div>
+                  </div>
+                  <div class="flex items-center justify-between text-xs text-dark-2">
+                    <span><i class="fa fa-clock-o mr-1"></i> 2025-11-23 14:15</span>
+                    <span><i class="fa fa-tags mr-1"></i> 碳中和,储能,投资机会</span>
+                    <button class="text-primary hover:underline">查看详情</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 加载更多 -->
+          <div class="mt-6 text-center">
+            <button class="inline-flex items-center justify-center px-4 py-2 border border-light-1 rounded-lg text-sm text-dark-2 hover:bg-light-2 transition-colors">
+              <i class="fa fa-angle-down mr-1"></i> 加载更多分析结果
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 右侧配置区域 -->
+      <div class="lg:col-span-4 space-y-6">
+        <!-- 密钥配置卡片 -->
+        <div class="bg-white rounded-xl shadow-card p-5 card-transition hover:shadow-card-hover">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-bold flex items-center">
+              <i class="fa fa-key text-primary mr-2"></i>
+              密钥配置
+            </h2>
+            <span class="text-xs text-light-1">API密钥管理</span>
+          </div>
+          
+          <div class="space-y-4">
+            <!-- 飞书密钥 -->
+            <div>
+              <label class="block text-sm font-medium text-dark-2 mb-1">飞书密钥
+                <span class="text-xs text-light-1 ml-1">用于飞书推送</span>
+              </label>
+              <div class="relative">
+                <input 
+                  type="password" 
+                  placeholder="请输入飞书API密钥" 
+                  class="w-full rounded-lg border border-light-1 bg-white py-2 px-3 input-focus pr-10"
+                >
+                <button class="absolute right-3 top-1/2 -translate-y-1/2 text-light-1 hover:text-primary transition-colors toggle-password">
+                  <i class="fa fa-eye-slash"></i>
+                </button>
+              </div>
+            </div>
+            
+            <!-- 大模型密钥 -->
+            <div>
+              <label class="block text-sm font-medium text-dark-2 mb-1">大模型密钥
+                <span class="text-xs text-light-1 ml-1">用于智能分析</span>
+              </label>
+              <div class="relative">
+                <input 
+                  type="password" 
+                  placeholder="请输入大模型API密钥" 
+                  class="w-full rounded-lg border border-light-1 bg-white py-2 px-3 input-focus pr-10"
+                >
+                <button class="absolute right-3 top-1/2 -translate-y-1/2 text-light-1 hover:text-primary transition-colors toggle-password">
+                  <i class="fa fa-eye-slash"></i>
+                </button>
+              </div>
+            </div>
+            
+            <!-- 保存按钮 -->
+            <button class="w-full py-2.5 rounded-lg bg-primary text-white font-medium hover:bg-primary/90 transition-colors flex items-center justify-center">
+              <i class="fa fa-save mr-2"></i> 保存配置
+            </button>
+          </div>
+        </div>
+        
+        <!-- 推送设置卡片 -->
+        <div class="bg-white rounded-xl shadow-card p-5 card-transition hover:shadow-card-hover">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-bold flex items-center">
+              <i class="fa fa-paper-plane text-primary mr-2"></i>
+              推送设置
+            </h2>
+            <span class="text-xs text-light-1">结果输出方式</span>
+          </div>
+          
+          <div class="space-y-4">
+            <!-- 推送选项 -->
+            <div class="space-y-3">
+              <label class="flex items-center p-3 rounded-lg border border-light-1 hover:border-primary/30 transition-colors cursor-pointer">
+                <input type="radio" name="pushType" class="form-radio text-primary h-4 w-4" checked>
+                <div class="ml-3">
+                  <div class="text-sm font-medium">仅在页面显示</div>
+                  <div class="text-xs text-light-1">分析结果仅在当前页面展示</div>
+                </div>
+              </label>
+              
+              <label class="flex items-center p-3 rounded-lg border border-light-1 hover:border-primary/30 transition-colors cursor-pointer">
+                <input type="radio" name="pushType" class="form-radio text-primary h-4 w-4">
+                <div class="ml-3">
+                  <div class="text-sm font-medium">推送到飞书</div>
+                  <div class="text-xs text-light-1">分析结果同步推送到飞书聊天</div>
+                </div>
+              </label>
+              
+              <label class="flex items-center p-3 rounded-lg border border-light-1 hover:border-primary/30 transition-colors cursor-pointer">
+                <input type="radio" name="pushType" class="form-radio text-primary h-4 w-4">
+                <div class="ml-3">
+                  <div class="text-sm font-medium">页面显示 + 飞书推送</div>
+                  <div class="text-xs text-light-1">双重方式确保您不会错过重要信息</div>
+                </div>
+              </label>
+            </div>
+            
+            <!-- 推送频率 -->
+            <div>
+              <label class="block text-sm font-medium text-dark-2 mb-1">推送频率</label>
+              <div class="relative">
+                <select class="w-full rounded-lg border border-light-1 bg-white py-2 px-3 input-focus appearance-none">
+                  <option value="realtime">实时推送</option>
+                  <option value="15min">每15分钟</option>
+                  <option value="hour">每小时</option>
+                  <option value="day">每天</option>
+                  <option value="custom">自定义</option>
+                </select>
+                <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                  <i class="fa fa-chevron-down text-light-1"></i>
+                </div>
+              </div>
+            </div>
+            
+            <!-- 推送内容设置 -->
+            <div>
+              <label class="block text-sm font-medium text-dark-2 mb-2">推送内容设置</label>
+              <div class="space-y-2">
+                <label class="flex items-center text-sm">
+                  <input type="checkbox" class="form-checkbox text-primary h-4 w-4 rounded" checked>
+                  <span class="ml-2 text-dark-2">关键发现</span>
+                </label>
+                <label class="flex items-center text-sm">
+                  <input type="checkbox" class="form-checkbox text-primary h-4 w-4 rounded" checked>
+                  <span class="ml-2 text-dark-2">重要动态</span>
+                </label>
+                <label class="flex items-center text-sm">
+                  <input type="checkbox" class="form-checkbox text-primary h-4 w-4 rounded">
+                  <span class="ml-2 text-dark-2">详细分析报告</span>
+                </label>
+                <label class="flex items-center text-sm">
+                  <input type="checkbox" class="form-checkbox text-primary h-4 w-4 rounded" checked>
+                  <span class="ml-2 text-dark-2">数据摘要</span>
+                </label>
+              </div>
+            </div>
+            
+            <!-- 执行按钮 -->
+            <button id="analyzeBtn" class="w-full py-3 rounded-lg btn-gradient text-white font-medium hover:opacity-90 transition-opacity flex items-center justify-center text-shadow">
+              <i class="fa fa-play-circle mr-2"></i> 开始智能分析
+            </button>
+            
+            <!-- 状态信息 -->
+            <div class="text-center text-sm text-dark-2 mt-2">
+              <p>上次分析时间: <span class="text-primary">2025-11-26 09:35:22</span></p>
+              <p class="mt-1">分析状态: <span class="text-success">已完成</span></p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 系统状态卡片 -->
+        <div class="bg-white rounded-xl shadow-card p-5 card-transition hover:shadow-card-hover">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-bold flex items-center">
+              <i class="fa fa-signal text-primary mr-2"></i>
+              系统状态
+            </h2>
+            <span class="text-xs text-light-1">实时监控</span>
+          </div>
+          
+          <div class="space-y-3">
+            <div class="flex justify-between items-center">
+              <span class="text-sm">服务状态</span>
+              <span class="flex items-center text-sm text-success">
+                <span class="w-2 h-2 bg-success rounded-full mr-1 animate-pulse"></span>
+                正常运行
+              </span>
+            </div>
+            <div class="w-full bg-light-2 rounded-full h-2">
+              <div class="bg-success h-2 rounded-full" style="width: 100%"></div>
+            </div>
+            
+            <div class="flex justify-between items-center">
+              <span class="text-sm">API连接</span>
+              <span class="flex items-center text-sm text-success">
+                <span class="w-2 h-2 bg-success rounded-full mr-1"></span>
+                已连接
+              </span>
+            </div>
+            <div class="w-full bg-light-2 rounded-full h-2">
+              <div class="bg-success h-2 rounded-full" style="width: 100%"></div>
+            </div>
+            
+            <div class="flex justify-between items-center">
+              <span class="text-sm">数据更新进度</span>
+              <span class="text-sm text-dark-2">78%</span>
+            </div>
+            <div class="w-full bg-light-2 rounded-full h-2">
+              <div class="bg-primary h-2 rounded-full" style="width: 78%"></div>
+            </div>
+            
+            <div class="flex justify-between items-center">
+              <span class="text-sm">缓存使用率</span>
+              <span class="text-sm text-dark-2">42%</span>
+            </div>
+            <div class="w-full bg-light-2 rounded-full h-2">
+              <div class="bg-warning h-2 rounded-full" style="width: 42%"></div>
+            </div>
+            
+            <!-- 最近分析记录 -->
+            <div class="mt-4 pt-4 border-t border-light-2">
+              <h3 class="text-sm font-medium mb-2">最近分析记录</h3>
+              <div class="space-y-2 max-h-32 overflow-y-auto scrollbar-hide">
+                <div class="text-xs text-dark-2 flex justify-between">
+                  <span>关键词: 人工智能,新能源</span>
+                  <span>09:35</span>
+                </div>
+                <div class="text-xs text-dark-2 flex justify-between">
+                  <span>关键词: 半导体,芯片</span>
+                  <span>昨天 16:42</span>
+                </div>
+                <div class="text-xs text-dark-2 flex justify-between">
+                  <span>关键词: 碳中和,储能</span>
+                  <span>昨天 08:30</span>
+                </div>
+                <div class="text-xs text-dark-2 flex justify-between">
+                  <span>关键词: 生物医药,创新药</span>
+                  <span>11-23 14:15</span>
+                </div>
+                <div class="text-xs text-dark-2 flex justify-between">
+                  <span>关键词: 元宇宙,虚拟现实</span>
+                  <span>11-22 10:20</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- 页脚 -->
+  <footer class="bg-white border-t border-light-2 py-4 mt-8">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col md:flex-row justify-between items-center">
+        <div class="text-sm text-dark-2 mb-3 md:mb-0">
+          © 2025 智能信息分析系统 - 版权所有
+        </div>
+        <div class="flex space-x-4 text-sm text-dark-2">
+          <a href="#" class="hover:text-primary transition-colors">使用文档</a>
+          <a href="#" class="hover:text-primary transition-colors">API文档</a>
+          <a href="#" class="hover:text-primary transition-colors">联系我们</a>
+          <a href="#" class="hover:text-primary transition-colors">隐私政策</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- 加载中模态框 -->
+  <div id="loadingModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4">
+      <div class="text-center">
+        <div class="inline-block w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin mb-4"></div>
+        <h3 class="text-lg font-bold mb-2">正在进行智能分析</h3>
+        <p class="text-dark-2 text-sm mb-4">我们正在根据您的关键词和配置分析相关信息，请稍候...</p>
+        <div class="w-full bg-light-2 rounded-full h-1.5 mb-1">
+          <div id="progressBar" class="bg-primary h-1.5 rounded-full" style="width: 0%"></div>
+        </div>
+        <p id="progressText" class="text-xs text-dark-2 mt-1">0%</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript -->
+  <script>
+    // 导航栏滚动效果
+    window.addEventListener('scroll', function() {
+      const navbar = document.getElementById('navbar');
+      if (window.scrollY > 10) {
+        navbar.classList.add('shadow');
+      } else {
+        navbar.classList.remove('shadow');
+      }
+    });
+    
+    // 密码显示/隐藏切换
+    document.querySelectorAll('.toggle-password').forEach(button => {
+      button.addEventListener('click', function() {
+        const input = this.parentElement.querySelector('input');
+        const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+        input.setAttribute('type', type);
+        
+        // 切换图标
+        if (type === 'text') {
+          this.innerHTML = '<i class="fa fa-eye"></i>';
+        } else {
+          this.innerHTML = '<i class="fa fa-eye-slash"></i>';
+        }
+      });
+    });
+    
+    // 分析按钮点击事件
+    document.getElementById('analyzeBtn').addEventListener('click', function() {
+      const modal = document.getElementById('loadingModal');
+      const progressBar = document.getElementById('progressBar');
+      const progressText = document.getElementById('progressText');
+      
+      // 显示模态框
+      modal.classList.remove('hidden');
+      
+      // 模拟进度条
+      let progress = 0;
+      const interval = setInterval(() => {
+        progress += Math.random() * 10;
+        if (progress >= 100) {
+          progress = 100;
+          clearInterval(interval);
+          
+          // 模拟分析完成后关闭模态框
+          setTimeout(() => {
+            modal.classList.add('hidden');
+            
+            // 显示成功提示（可以替换为实际的提示组件）
+            alert('智能分析已完成！结果已更新在页面上。');
+            
+            // 滚动到分析结果区域
+            document.querySelector('.智能分析结果').scrollIntoView({
+              behavior: 'smooth'
+            });
+          }, 800);
+        }
+        
+        progressBar.style.width = `${progress}%`;
+        progressText.textContent = `${Math.round(progress)}%`;
+      }, 300);
+    });
+    
+    // 页面加载完成后初始化
+    window.addEventListener('load', function() {
+      // 为所有输入框添加焦点动画
+      const inputs = document.querySelectorAll('input, select, textarea');
+      inputs.forEach(input => {
+        input.addEventListener('focus', function() {
+          this.parentElement.classList.add('scale-[1.01]');
+          this.parentElement.style.transition = 'transform 0.2s ease';
+        });
+        
+        input.addEventListener('blur', function() {
+          this.parentElement.classList.remove('scale-[1.01]');
+        });
+      });
+      
+      // 为分析结果卡片添加动画效果
+      const resultCards = document.querySelectorAll('.result-card-hover');
+      resultCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+          this.classList.add('shadow-card-hover', '-translate-y-1');
+        });
+        
+        card.addEventListener('mouseleave', function() {
+          this.classList.remove('shadow-card-hover', '-translate-y-1');
+        });
+      });
+    });
+  </script>
+</body>
+</html>

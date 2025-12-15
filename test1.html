@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>舆情分析系统</title>
+</head>
+<body>
+  <h1>🔍 舆情分析平台</h1>
+  <input type="text" id="keyword" placeholder="请输入搜索主题，如：黄金价格、股市" />
+  <button onclick="startAnalysis()">开始分析</button>
+  <pre id="result"></pre>
+
+  <script>
+    async function startAnalysis() {
+      const keyword = document.getElementById("keyword").value.trim();
+      if (!keyword) return alert("请输入关键词");
+
+      const res = await fetch("http://localhost:8000/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ keyword })
+      });
+
+      const data = await res.json();
+      document.getElementById("result").textContent = 
+        data.success ? data.summary : "❌ 错误：" + data.error;
+    }
+  </script>
+</body>
+</html>

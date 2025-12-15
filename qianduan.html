@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能信息推送系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .form-container {
+            padding: 40px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 1.1em;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            margin-right: 10px;
+            width: auto;
+        }
+        
+        .checkbox-group label {
+            margin-bottom: 0;
+            font-weight: normal;
+        }
+        
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2em;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            display: block;
+            margin: 0 auto;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+        
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+        
+        .status-message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            display: none;
+        }
+        
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .theme-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .theme-tag {
+            background: #e9ecef;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        .theme-tag:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .selected {
+            background: #667eea;
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+            }
+            
+            .form-container {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>智能信息推送系统</h1>
+            <p>自动获取微博信息并推送到飞书</p>
+        </div>
+        
+        <div class="form-container">
+            <form id="pushForm">
+                <!-- 微博手机号登录 -->
+                <div class="form-group">
+                    <label for="phone">微博手机号</label>
+                    <input type="tel" id="phone" name="phone" placeholder="请输入微博注册手机号" required>
+                    <button type="button" id="loginBtn" class="submit-btn" style="display: inline-block; width: auto; margin-top: 10px;">手机号登录并获取Cookie</button>
+                </div>
+
+                <div class="form-group" id="cookieStatus" style="display: none;">
+                    <label>Cookie状态</label>
+                    <p id="cookieMessage"></p>
+                    <textarea id="manualCookie" name="manualCookie" placeholder="可选: 手动输入Cookie (如果自动获取的Cookie失效)" style="margin-top: 10px; height: 60px; resize: vertical;"></textarea>
+                    <button type="button" id="updateCookieBtn" class="submit-btn" style="display: inline-block; width: auto; margin-top: 10px; background: #28a745;">更新Cookie</button>
+                    <button type="button" id="saveManualCookieBtn" class="submit-btn" style="display: inline-block; width: auto; margin-top: 10px; margin-left: 10px; background: #007bff;">保存手动Cookie</button>
+                </div>
+                
+                <!-- 推送主题设置 -->
+                <div class="form-group">
+                    <label>推送主题</label>
+                    <div class="theme-tags">
+                        <span class="theme-tag" data-value="科技">科技</span>
+                        <span class="theme-tag" data-value="娱乐">娱乐</span>
+                        <span class="theme-tag" data-value="体育">体育</span>
+                        <span class="theme-tag" data-value="财经">财经</span>
+                        <span class="theme-tag" data-value="汽车">汽车</span>
+                        <span class="theme-tag" data-value="房产">房产</span>
+                        <span class="theme-tag" data-value="教育">教育</span>
+                        <span class="theme-tag" data-value="游戏">游戏</span>
+                        <span class="theme-tag" data-value="旅游">旅游</span>
+                        <span class="theme-tag" data-value="美食">美食</span>
+                    </div>
+                    <textarea id="customTopics" name="customTopics" placeholder="输入自定义主题关键词，用逗号分隔" style="margin-top: 15px; height: 80px;"></textarea>
+                </div>
+                
+                <!-- 推送时间设置 -->
+                <div class="form-group">
+                    <label for="pushTime">每日推送时间</label>
+                    <select id="pushTime" name="pushTime" required>
+                        <option value="">请选择推送时间</option>
+                        <option value="test_10s" style="color: red;">🔥 10秒后测试推送</option>
+                        <option value="08:00">上午 8:00</option>
+                        <option value="09:00">上午 9:00</option>
+                        <option value="10:00">上午 10:00</option>
+                        <option value="11:00">上午 11:00</option>
+                        <option value="12:00">中午 12:00</option>
+                        <option value="14:00">下午 2:00</option>
+                        <option value="15:00">下午 3:00</option>
+                        <option value="16:00">下午 4:00</option>
+                        <option value="17:00">下午 5:00</option>
+                        <option value="18:00">下午 6:00</option>
+                        <option value="19:00">晚上 7:00</option>
+                        <option value="20:00">晚上 8:00</option>
+                    </select>
+                </div>
+                
+                <!-- 飞书Webhook设置 -->
+                <div class="form-group">
+                    <label for="feishuWebhook">飞书机器人Webhook</label>
+                    <input type="url" id="feishuWebhook" name="feishuWebhook" placeholder="请输入飞书机器人Webhook地址" required>
+                    <div style="margin-top: 8px; font-size: 0.9em; color: #666;">
+                        <strong>获取方法：</strong>在飞书群聊中添加机器人 → 复制Webhook地址
+                    </div>
+                </div>
+                
+                <!-- 推送频率设置 -->
+                <div class="form-group">
+                    <label>推送频率</label>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="daily" name="frequency" value="daily" checked>
+                        <label for="daily">每日推送</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="weekly" name="frequency" value="weekly">
+                        <label for="weekly">每周推送</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="custom" name="frequency" value="custom">
+                        <label for="custom">自定义推送</label>
+                    </div>
+                </div>
+                
+                <!-- 消息格式设置 -->
+                <div class="form-group">
+                    <label>消息格式</label>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="includeImages" name="messageFormat" value="images" checked>
+                        <label for="includeImages">包含图片</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="includeComments" name="messageFormat" value="comments">
+                        <label for="includeComments">包含评论数</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="includeLikes" name="messageFormat" value="likes" checked>
+                        <label for="includeLikes">包含点赞数</label>
+                    </div>
+                </div>
+                
+                <button type="submit" class="submit-btn">保存设置并启动推送</button>
+            </form>
+            
+            <div id="statusMessage" class="status-message"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentPhone = '';
+        let currentCookie = '';
+
+        // 主题标签选择功能
+        document.querySelectorAll('.theme-tag').forEach(tag => {
+            tag.addEventListener('click', function() {
+                this.classList.toggle('selected');
+            });
+        });
+
+        // 手机号登录并获取cookie
+        document.getElementById('loginBtn').addEventListener('click', async function() {
+            const phone = document.getElementById('phone').value;
+            if (!phone) {
+                showStatus('请输入手机号', 'error');
+                return;
+            }
+
+            currentPhone = phone;
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ phone: phone })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    currentCookie = data.cookie;
+                    document.getElementById('cookieStatus').style.display = 'block';
+                    document.getElementById('cookieMessage').textContent = 'Cookie获取成功！';
+                    showStatus('登录成功，请配置推送设置', 'success');
+                } else {
+                    showStatus(data.error, 'error');
+                }
+            } catch (error) {
+                showStatus('登录失败，请重试', 'error');
+            }
+        });
+
+        // 表单提交处理
+        document.getElementById('pushForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            if (!currentCookie) {
+                showStatus('请先通过手机号登录获取Cookie', 'error');
+                return;
+            }
+
+            // 获取选中的主题
+            const selectedThemes = Array.from(document.querySelectorAll('.theme-tag.selected'))
+                .map(tag => tag.dataset.value);
+
+            const customTopics = document.getElementById('customTopics').value;
+            const allTopics = [...selectedThemes];
+
+            if (customTopics.trim()) {
+                const custom = customTopics.split(',').map(topic => topic.trim()).filter(topic => topic);
+                allTopics.push(...custom);
+            }
+
+            // 验证表单数据
+            const formData = {
+                phone: currentPhone,
+                cookie: currentCookie,
+                push_time: document.getElementById('pushTime').value,
+                feishu_webhook: document.getElementById('feishuWebhook').value,
+                keywords: allTopics
+            };
+
+            // 调试信息
+            console.log('发送的数据:', formData);
+
+            if (!currentPhone) {
+                showStatus('请先输入手机号', 'error');
+                return;
+            }
+
+            if (!currentCookie) {
+                showStatus('请先点击手机号登录获取Cookie', 'error');
+                return;
+            }
+
+            if (!formData.push_time) {
+                showStatus('请选择推送时间', 'error');
+                return;
+            }
+
+            if (!formData.feishu_webhook) {
+                showStatus('请输入飞书机器人Webhook地址', 'error');
+                return;
+            }
+
+            if (!formData.keywords.length) {
+                showStatus('请至少选择或输入一个关键词', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/save_config', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    showStatus(data.message, 'success');
+                } else {
+                    showStatus(data.error, 'error');
+                }
+            } catch (error) {
+                showStatus('保存失败，请重试', 'error');
+            }
+        });
+
+        // 显示状态消息
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('statusMessage');
+            statusDiv.textContent = message;
+            statusDiv.className = `status-message status-${type}`;
+            statusDiv.style.display = 'block';
+
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        // 更新Cookie (重新获取)
+        document.getElementById('updateCookieBtn').addEventListener('click', async function() {
+            if (!currentPhone) {
+                showStatus('请先输入手机号', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ phone: currentPhone })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    currentCookie = data.cookie;
+                    document.getElementById('cookieMessage').textContent = 'Cookie更新成功！';
+
+                    // 如果config已保存则更新数据库中的cookie
+                    if (document.querySelector('#pushForm input[name="feishuWebhook"]').value) {
+                        await fetch('/api/update_cookie', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                phone: currentPhone,
+                                cookie: data.cookie
+                            })
+                        });
+                        showStatus('Cookie成功更新到数据库', 'success');
+                    } else {
+                        showStatus('Cookie已更新，请配置其他设置后保存', 'success');
+                    }
+                } else {
+                    showStatus(data.error, 'error');
+                }
+            } catch (error) {
+                showStatus('Cookie更新失败，请重试', 'error');
+            }
+        });
+
+        // 保存手动Cookie
+        document.getElementById('saveManualCookieBtn').addEventListener('click', async function() {
+            const manualCookie = document.getElementById('manualCookie').value.trim();
+
+            if (!manualCookie) {
+                showStatus('请先输入Cookie内容', 'error');
+                return;
+            }
+
+            if (!currentPhone) {
+                showStatus('请先输入手机号', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/update_cookie', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        phone: currentPhone,
+                        cookie: manualCookie
+                    })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    currentCookie = manualCookie;
+                    document.getElementById('cookieMessage').textContent = '手动Cookie保存成功！';
+                    showStatus('手动Cookie已经保存到数据库', 'success');
+                } else {
+                    showStatus(data.error, 'error');
+                }
+            } catch (error) {
+                showStatus('手动Cookie保存失败，请重试', 'error');
+            }
+        });
+
+        // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('智能信息推送系统已就绪');
+        });
+    </script>
+</body>
+</html>
